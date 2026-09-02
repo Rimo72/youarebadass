@@ -147,13 +147,8 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 9px;
       color: var(--muted);
-      font: inherit;
-      font-weight: 600;
-      font-size: 0.9rem;
       padding: 6px;
-      transition: color 0.2s ease;
     }
     .heart-btn svg { width: 22px; height: 22px; overflow: visible; }
     .heart-btn svg path {
@@ -203,24 +198,20 @@
   </main>
 
   <footer>
-    <button class="heart-btn" id="heart" aria-pressed="false">
+    <button class="heart-btn" id="heart" aria-pressed="false" aria-label="Like">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21s-7.5-4.9-10-9.6C.3 8.1 1.8 4.4 5.2 3.9 7.5 3.6 9.4 4.8 12 7.7c2.6-2.9 4.5-4.1 6.8-3.8 3.4.5 4.9 4.2 3.2 7.5C19.5 16.1 12 21 12 21z" />
       </svg>
-      <span id="count">0</span>
     </button>
   </footer>
 
   <script>
     (function () {
       var btn = document.getElementById('heart');
-      var countEl = document.getElementById('count');
-      var KEY = 'yab_likes';
       var LIKED = 'yab_liked';
-      var n = 0, liked = false;
+      var liked = false;
 
       try {
-        n = parseInt(localStorage.getItem(KEY), 10) || 0;
         liked = localStorage.getItem(LIKED) === '1';
       } catch (e) {}
 
@@ -228,17 +219,13 @@
 
       btn.addEventListener('click', function () {
         liked = !liked;
-        n += liked ? 1 : -1;
-        if (n < 0) n = 0;
         try {
-          localStorage.setItem(KEY, String(n));
           localStorage.setItem(LIKED, liked ? '1' : '0');
         } catch (e) {}
         render();
       });
 
       function render() {
-        countEl.textContent = n;
         btn.classList.toggle('liked', liked);
         btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
       }
