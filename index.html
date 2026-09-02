@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>You Are Badass</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #000;
       --ink: #f4f4f2;
+      --muted: #8a8a8a;
       --yellow: #f5c518;
     }
 
@@ -20,7 +18,7 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: "Permanent Marker", "Comic Sans MS", cursive;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
@@ -33,71 +31,44 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 7vh 8vw;
+      padding: 8vh 8vw;
     }
 
-    .card {
-      width: 100%;
-      max-width: 620px;
+    .card-block {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+      max-width: 460px;
+      width: 100%;
     }
 
-    h1 {
-      font-family: "Anton", "Arial Narrow", "Arial Black", sans-serif;
-      font-weight: 400;
-      text-transform: uppercase;
-      line-height: 0.86;
-      letter-spacing: 0.005em;
-      font-size: clamp(3.6rem, 15vw, 7.4rem);
-      color: #fff;
-    }
-
-    .brush {
-      width: min(100%, 560px);
-      height: clamp(26px, 7vw, 46px);
-      margin: clamp(14px, 3vw, 26px) 0 clamp(40px, 9vw, 74px);
+    .card {
+      width: min(300px, 72vw);
+      border-radius: 12px;
       display: block;
-      overflow: visible;
+      transform: rotate(-4deg);
+      box-shadow:
+        0 30px 60px -15px rgba(0, 0, 0, 0.75),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+      transition: transform 0.4s ease;
     }
-    .brush path { fill: var(--yellow); }
-
-    .line-1 {
-      color: var(--yellow);
-      text-transform: uppercase;
-      line-height: 1.15;
-      letter-spacing: 0.02em;
-      font-size: clamp(1.5rem, 6vw, 2.5rem);
-    }
-
-    .line-2 {
-      margin-top: clamp(18px, 4vw, 32px);
-      text-transform: uppercase;
-      line-height: 1.25;
-      letter-spacing: 0.02em;
-      font-size: clamp(1.15rem, 4.6vw, 1.85rem);
-      max-width: 12em;
-    }
+    .card:hover { transform: rotate(0deg) translateY(-6px); }
 
     .note {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      margin-top: clamp(34px, 8vw, 60px);
+      margin-top: clamp(40px, 9vw, 66px);
       font-weight: 700;
-      font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+      font-size: clamp(1rem, 2.6vw, 1.15rem);
       line-height: 1.5;
-      max-width: 22em;
+      max-width: 20em;
     }
 
     .note-fine {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       margin-top: 0.9rem;
-      font-weight: 400;
-      color: #8a8a8a;
+      color: var(--muted);
       font-size: clamp(0.85rem, 2vw, 0.95rem);
       line-height: 1.6;
-      max-width: 24em;
+      max-width: 22em;
     }
 
     footer {
@@ -114,7 +85,7 @@
       padding: 8px;
       line-height: 0;
     }
-    .heart-btn svg { width: clamp(34px, 9vw, 46px); height: clamp(34px, 9vw, 46px); overflow: visible; }
+    .heart-btn svg { width: clamp(32px, 8vw, 42px); height: clamp(32px, 8vw, 42px); overflow: visible; }
     .heart-btn svg path {
       fill: none;
       stroke: var(--yellow);
@@ -132,23 +103,8 @@
 </head>
 <body>
   <main class="stage">
-    <section class="card">
-      <h1>You Are<br>Badass</h1>
-
-      <svg class="brush" viewBox="0 0 560 46" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M4,26
-                 C 130,8 320,6 440,12
-                 C 490,14 525,20 556,9
-                 C 558,9 559,12 557,15
-                 C 525,32 480,35 440,34
-                 C 320,32 130,36 16,44
-                 C 6,45 1,40 2,33
-                 C 2,29 3,27 4,26 Z" />
-      </svg>
-
-      <p class="line-1">Don't change a thing.</p>
-      <p class="line-2">You're perfect just the way you are.</p>
-
+    <section class="card-block">
+      <img class="card" src="card.png" alt="You Are Badass — Don't change a thing. You're perfect just the way you are.">
       <p class="note">Someone gave you this card to make your day a little better.</p>
       <p class="note-fine">No catch. No obligation. Just a random act of kindness.</p>
     </section>
