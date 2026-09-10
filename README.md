@@ -46,10 +46,20 @@ That script:
 
 `/admin` is a private moderation page. New submissions email you a link to it.
 
+### Admin sign-in
+
+Primary login is **email + password**. Create the user once:
+**Supabase → Authentication → Users → Add user** → the admin email, a password,
+**Auto Confirm User = on**. No email is sent, no rate limits.
+
+A one-time email code ("Email me a one-time code instead") is a fallback — it
+uses Supabase Auth email, which on the free shared sender is throttled to a
+couple per hour unless you set custom SMTP (below).
+
 ### One-time setup
 
-1. **Resend** (email delivery): create a free account at resend.com with the
-   admin email, then **API Keys → Create** (Sending access). No domain
+1. **Resend** (notification-email delivery): create a free account at resend.com
+   with the admin email, then **API Keys → Create** (Sending access). No domain
    verification needed — unverified accounts send from `onboarding@resend.dev`
    to the account's own address, which is all this needs.
 2. Put the key in Vault: paste it into `supabase-secret.local.sql` (git-ignored)
@@ -65,16 +75,17 @@ That script:
 4. **Dashboard → Authentication → URL Configuration**: set the Site URL to
    `https://youarebadass.ca` and add redirect URLs
    `https://youarebadass.ca/admin` and `https://youarebadass.vercel.app/admin`.
-5. *(optional)* **Authentication → Emails** → set custom SMTP (e.g. GoDaddy) so
-   the magic-link mail comes from your domain instead of Supabase's shared
-   sender.
+5. *(optional)* **Authentication → Emails → SMTP Settings** → point at Resend
+   (`smtp.resend.com`, port 465, user `resend`, password = the API key,
+   sender `onboarding@resend.dev`) so the fallback code emails aren't throttled.
+   Not needed if you only ever use password login.
 
 ### How access is locked down
 
-The `/admin` HTML is public, but useless without a session. Sign-in is a
-Supabase magic link; the RLS policies check the **exact email address**, so a
-stranger who requests a link for their own inbox signs in as a nobody — empty
-list, every write refused.
+The `/admin` HTML is public, but useless without a session. The RLS policies
+check the **exact email address** on the logged-in user, so anyone who manages
+to sign in with a different account sees an empty list and every write is
+refused.
 
 ### Moderating by hand (fallback)
 

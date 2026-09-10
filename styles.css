@@ -405,13 +405,15 @@ body.admin::before { display: none; }
 .admin-lead { color: var(--muted); margin-bottom: 14px; }
 
 #loginForm,
-#codeForm {
+#codeForm,
+#codeVerifyForm {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 #loginForm input,
-#codeForm input {
+#codeForm input,
+#codeVerifyForm input {
   flex: 1 1 200px;
   font: inherit;
   color: var(--ink);
@@ -421,8 +423,21 @@ body.admin::before { display: none; }
   padding: 10px 12px;
 }
 #loginForm input:focus,
-#codeForm input:focus { outline: none; border-color: var(--yellow); }
-#codeForm input { letter-spacing: 0.4em; font-size: 1.1rem; text-align: center; }
+#codeForm input:focus,
+#codeVerifyForm input:focus { outline: none; border-color: var(--yellow); }
+#codeVerifyForm #loginCode { letter-spacing: 0.4em; font-size: 1.1rem; text-align: center; }
+
+.admin-alt { margin: 12px 0 0; }
+.linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--muted);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.linkish:hover { color: var(--ink); }
 
 .admin-bar {
   display: flex;

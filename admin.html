@@ -15,17 +15,26 @@
     <h1>Experiences &mdash; admin</h1>
 
     <section id="login" hidden>
-      <p class="admin-lead">Enter your email &mdash; we&rsquo;ll send a 6-digit code.</p>
+      <p class="admin-lead">Sign in.</p>
       <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
-        <button type="submit" class="btn" id="loginBtn">Send code</button>
+        <input type="email" id="loginEmail" placeholder="email" autocomplete="username" required>
+        <input type="password" id="loginPassword" placeholder="password" autocomplete="current-password" required>
+        <button type="submit" class="btn" id="loginBtn">Sign in</button>
       </form>
 
+      <p class="admin-alt">
+        <button type="button" class="linkish" id="useCode">Email me a one-time code instead</button>
+      </p>
+
       <form id="codeForm" hidden>
+        <input type="email" id="codeEmail" placeholder="email" autocomplete="email" required>
+        <button type="submit" class="btn" id="codeSendBtn">Send code</button>
+      </form>
+      <form id="codeVerifyForm" hidden>
         <input type="text" id="loginCode" inputmode="numeric" autocomplete="one-time-code"
                pattern="[0-9]*" maxlength="6" placeholder="123456" required>
         <button type="submit" class="btn" id="codeBtn">Verify</button>
-        <button type="button" class="btn ghost" id="codeBack">Use a different email</button>
+        <button type="button" class="btn ghost" id="codeBack">Back</button>
       </form>
 
       <p class="form-msg" id="loginMsg" role="status" aria-live="polite"></p>

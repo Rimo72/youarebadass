@@ -1,7 +1,8 @@
 /* Admin — review & moderate experiences.
- * Access is gated by Supabase Auth: a magic link signs you in, and the
- * RLS policies only let ONE email address read/modify rows. Anyone else
- * who signs in sees an empty list and every write is refused.
+ * Access is gated by Supabase Auth. Primary sign-in is email + password
+ * (create the user in the Supabase dashboard). A one-time email code is
+ * offered as a fallback. Either way the RLS policies only let ONE email
+ * address read/modify rows — anyone else who signs in sees nothing.
  */
 (function () {
   "use strict";
@@ -13,8 +14,13 @@
   var panelSec = document.getElementById("panel");
   var loginForm = document.getElementById("loginForm");
   var loginEmail = document.getElementById("loginEmail");
+  var loginPassword = document.getElementById("loginPassword");
   var loginBtn = document.getElementById("loginBtn");
+  var useCodeBtn = document.getElementById("useCode");
   var codeForm = document.getElementById("codeForm");
+  var codeEmail = document.getElementById("codeEmail");
+  var codeSendBtn = document.getElementById("codeSendBtn");
+  var codeVerifyForm = document.getElementById("codeVerifyForm");
   var loginCode = document.getElementById("loginCode");
   var codeBtn = document.getElementById("codeBtn");
   var codeBack = document.getElementById("codeBack");
@@ -46,8 +52,9 @@
   function showLogin() {
     panelSec.hidden = true;
     loginSec.hidden = false;
-    codeForm.hidden = true;
     loginForm.hidden = false;
+    codeForm.hidden = true;
+    codeVerifyForm.hidden = true;
   }
 
   function showPanel(email) {
@@ -57,14 +64,39 @@
     loadList();
   }
 
-  /* ---------- auth ---------- */
-  var pendingEmail = "";
-
+  /* ---------- password sign-in ---------- */
   loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var email = loginEmail.value.trim();
-    if (!email) return;
+    var password = loginPassword.value;
+    if (!email || !password) return;
     loginBtn.disabled = true;
+    setMsg(loginMsg, "Signing in…");
+    sb.auth.signInWithPassword({ email: email, password: password })
+      .then(function (res) {
+        if (res.error) setMsg(loginMsg, res.error.message || "Sign-in failed.", "err");
+        // success -> onAuthStateChange swaps to the panel
+      })
+      .catch(function () { setMsg(loginMsg, "Something went wrong. Try again.", "err"); })
+      .finally(function () { loginBtn.disabled = false; });
+  });
+
+  /* ---------- one-time email code (fallback) ---------- */
+  var pendingEmail = "";
+
+  useCodeBtn.addEventListener("click", function () {
+    loginForm.hidden = true;
+    codeForm.hidden = false;
+    codeEmail.value = loginEmail.value.trim();
+    codeEmail.focus();
+    setMsg(loginMsg, "");
+  });
+
+  codeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = codeEmail.value.trim();
+    if (!email) return;
+    codeSendBtn.disabled = true;
     setMsg(loginMsg, "Sending…");
     sb.auth.signInWithOtp({
       email: email,
@@ -74,20 +106,20 @@
         setMsg(loginMsg, res.error.message || "Couldn't send the code.", "err");
       } else {
         pendingEmail = email;
-        loginForm.hidden = true;
-        codeForm.hidden = false;
+        codeForm.hidden = true;
+        codeVerifyForm.hidden = false;
         loginCode.value = "";
         loginCode.focus();
-        setMsg(loginMsg, "Enter the 6-digit code from the email (or click the link in it).", "ok");
+        setMsg(loginMsg, "Enter the 6-digit code from the email.", "ok");
       }
     }).catch(function () {
       setMsg(loginMsg, "Something went wrong. Try again.", "err");
     }).finally(function () {
-      loginBtn.disabled = false;
+      codeSendBtn.disabled = false;
     });
   });
 
-  codeForm.addEventListener("submit", function (e) {
+  codeVerifyForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var token = loginCode.value.replace(/\D/g, "");
     if (token.length < 6 || !pendingEmail) return;
@@ -95,23 +127,15 @@
     setMsg(loginMsg, "Verifying…");
     sb.auth.verifyOtp({ email: pendingEmail, token: token, type: "email" })
       .then(function (res) {
-        if (res.error) {
-          setMsg(loginMsg, res.error.message || "That code didn't work.", "err");
-        }
-        // success -> onAuthStateChange swaps to the panel
+        if (res.error) setMsg(loginMsg, res.error.message || "That code didn't work.", "err");
       })
-      .catch(function () {
-        setMsg(loginMsg, "Something went wrong. Try again.", "err");
-      })
-      .finally(function () {
-        codeBtn.disabled = false;
-      });
+      .catch(function () { setMsg(loginMsg, "Something went wrong. Try again.", "err"); })
+      .finally(function () { codeBtn.disabled = false; });
   });
 
   codeBack.addEventListener("click", function () {
     pendingEmail = "";
-    codeForm.hidden = true;
-    loginForm.hidden = false;
+    showLogin();
     setMsg(loginMsg, "");
     loginEmail.focus();
   });
