@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Admin · You Are Badass</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="vendor/supabase.min.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body class="admin">
+  <main class="admin-wrap">
+    <h1>Experiences &mdash; admin</h1>
+
+    <section id="login" hidden>
+      <p class="admin-lead">Enter your email to get a sign-in link.</p>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
+        <button type="submit" class="btn" id="loginBtn">Send link</button>
+      </form>
+      <p class="form-msg" id="loginMsg" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="panel" hidden>
+      <div class="admin-bar">
+        <span id="whoami" class="admin-who"></span>
+        <button type="button" class="btn ghost" id="signOut">Sign out</button>
+      </div>
+
+      <div class="admin-tabs" role="tablist">
+        <button type="button" class="admin-tab is-active" id="tabPending" role="tab">Pending</button>
+        <button type="button" class="admin-tab" id="tabPublished" role="tab">Published</button>
+      </div>
+
+      <p class="exp-state" id="listState">Loading&hellip;</p>
+      <ul class="admin-list" id="list"></ul>
+    </section>
+  </main>
+</body>
+</html>

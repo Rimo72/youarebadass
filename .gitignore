@@ -1,2 +1,5 @@
 # Obsipix design doc — belongs to the parent project, not this site
 DESIGN.md
+
+# secrets — never commit
+*.local.sql

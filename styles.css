@@ -386,3 +386,75 @@ footer {
   .ticker-track { transition: none !important; }
   * { transition: none !important; }
 }
+
+/* ---------------- Admin ---------------- */
+body.admin { display: block; background: #0b0b0c; }
+body.admin::before { display: none; }
+
+.admin-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(24px, 6vw, 56px) 6vw 80px;
+}
+.admin-wrap h1 {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+.admin-lead { color: var(--muted); margin-bottom: 14px; }
+
+#loginForm {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#loginForm input {
+  flex: 1 1 220px;
+  font: inherit;
+  color: var(--ink);
+  background: #0c0c0d;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+#loginForm input:focus { outline: none; border-color: var(--yellow); }
+
+.admin-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.admin-who { color: var(--muted); font-size: 0.9rem; }
+
+.admin-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.admin-tab {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+.admin-tab.is-active { color: #1a1a1a; background: var(--yellow); border-color: var(--yellow); }
+
+.admin-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.admin-item {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.admin-meta { color: var(--muted); font-size: 0.8rem; }
+.admin-item blockquote { font-size: 1rem; line-height: 1.55; white-space: pre-wrap; }
+.admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn.small { padding: 7px 14px; font-size: 0.85rem; }
+.btn.warn { background: #ff6b6b; border-color: #ff6b6b; color: #1a1a1a; }
+.btn.ok { background: #7dd66e; border-color: #7dd66e; color: #14351d; }
