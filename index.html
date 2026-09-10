@@ -3,203 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>You Are Badass</title>
 
-  <!-- Google Analytics (GA4) -->
+  <!-- Google Analytics (GA4) loader; config runs from app.js -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-35XL0X1T4C"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-35XL0X1T4C');
-  </script>
 
-  <style>
-    :root {
-      --bg: #000;
-      --ink: #f4f4f2;
-      --muted: #8a8a8a;
-      --yellow: #f5c518;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-
-    body {
-      background: #000;
-      color: var(--ink);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      overflow-x: hidden;
-    }
-
-    /* studio vignette */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(120% 90% at 42% 38%, rgba(60,60,62,0.55), rgba(0,0,0,0) 55%),
-        radial-gradient(140% 120% at 50% 60%, #101011 0%, #000 70%);
-      pointer-events: none;
-    }
-
-    .stage {
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5vh 8vw 3vh;
-    }
-
-    .card-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      max-width: 460px;
-      width: 100%;
-    }
-
-    /* 3D card */
-    .scene {
-      perspective: 1300px;
-      perspective-origin: 58% 42%;
-      padding: clamp(14px, 4vw, 30px) 0;
-    }
-
-    .card {
-      position: relative;
-      width: min(232px, 54vw);
-      transform: rotateY(-27deg) rotateX(5deg) rotate(-1.5deg);
-      transform-style: preserve-3d;
-      border-radius: 14px;
-      filter: drop-shadow(-26px 34px 36px rgba(0, 0, 0, 0.8));
-    }
-
-    .card img {
-      display: block;
-      width: 100%;
-      border-radius: 14px;
-      backface-visibility: hidden;
-      filter: brightness(1.12) contrast(1.03);
-    }
-
-    /* light falloff across the face */
-    .card .sheen {
-      position: absolute;
-      inset: 0;
-      border-radius: 14px;
-      background: linear-gradient(108deg,
-        rgba(255,255,255,0.20) 0%,
-        rgba(255,255,255,0.05) 20%,
-        rgba(0,0,0,0) 42%,
-        rgba(0,0,0,0.30) 78%,
-        rgba(0,0,0,0.5) 100%);
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    /* bright rim light on the leading edge */
-    .card .rim {
-      position: absolute;
-      inset: 0;
-      border-radius: 14px;
-      box-shadow:
-        inset 2px 2px 1px rgba(255,255,255,0.45),
-        inset 1px 0 0 rgba(255,255,255,0.25),
-        inset 0 -1px 0 rgba(255,255,255,0.08);
-      pointer-events: none;
-    }
-
-    /* contact shadow on the floor */
-    .card::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -7%;
-      width: 104%;
-      height: 16%;
-      background: rgba(0, 0, 0, 0.78);
-      border-radius: 50%;
-      filter: blur(26px);
-      transform: translateX(-55%) translateZ(-70px) scaleX(1.25);
-      z-index: -1;
-    }
-
-    /* soft floor reflection, clipped so it doesn't affect layout */
-    .reflection {
-      height: clamp(44px, 12vw, 64px);
-      overflow: hidden;
-      margin-top: -4px;
-    }
-    .reflection img {
-      display: block;
-      width: min(232px, 54vw);
-      border-radius: 14px;
-      transform: rotateY(-27deg) rotateX(5deg) rotate(-1.5deg) scaleY(-1);
-      transform-origin: top center;
-      opacity: 0.14;
-      filter: blur(4px);
-      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0) 75%);
-      mask-image: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0) 75%);
-    }
-
-    .note {
-      margin-top: clamp(22px, 5vw, 40px);
-      font-weight: 700;
-      font-size: clamp(1rem, 2.6vw, 1.15rem);
-      line-height: 1.5;
-      max-width: 20em;
-    }
-
-    .note-fine {
-      margin-top: 0.9rem;
-      color: var(--muted);
-      font-size: clamp(0.85rem, 2vw, 0.95rem);
-      line-height: 1.6;
-      max-width: 22em;
-    }
-
-    footer {
-      position: relative;
-      z-index: 1;
-      padding: 10px 8vw 40px;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .heart-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      padding: 8px;
-      line-height: 0;
-    }
-    .heart-btn svg { width: clamp(32px, 8vw, 42px); height: clamp(32px, 8vw, 42px); overflow: visible; }
-    .heart-btn svg path {
-      fill: none;
-      stroke: var(--yellow);
-      stroke-width: 2;
-      transition: fill 0.25s ease, transform 0.2s ease;
-      transform-origin: center;
-    }
-    .heart-btn.liked svg path { fill: var(--yellow); }
-    .heart-btn:active svg path { transform: scale(0.82); }
-
-    @media (max-width: 600px) {
-      .stage { padding: 6vh 8vw 3vh; }
-      .card { transform: rotateY(-20deg) rotateX(3deg) rotate(-1deg); }
-      .reflection img { transform: rotateY(-20deg) rotateX(3deg) rotate(-1deg) scaleY(-1); }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
   <main class="stage">
@@ -219,6 +30,20 @@
     </section>
   </main>
 
+  <section class="experiences" aria-labelledby="expTitle">
+    <div class="exp-head">
+      <h2 id="expTitle">Experiences</h2>
+      <button type="button" class="btn" id="openForm">Share your experience</button>
+    </div>
+
+    <div class="carousel">
+      <button type="button" class="car-nav prev" id="carPrev" aria-label="Previous">&#8249;</button>
+      <ul class="car-track" id="track"></ul>
+      <button type="button" class="car-nav next" id="carNext" aria-label="Next">&#8250;</button>
+    </div>
+    <p class="exp-state" id="expState">Loading experiences…</p>
+  </section>
+
   <footer>
     <button class="heart-btn" id="heart" aria-pressed="false" aria-label="Like">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -227,26 +52,52 @@
     </button>
   </footer>
 
-  <script>
-    (function () {
-      var btn = document.getElementById('heart');
-      var LIKED = 'yab_liked';
-      var liked = false;
+  <dialog class="modal" id="expDialog">
+    <form id="expForm" novalidate>
+      <h3>Share your experience</h3>
 
-      try { liked = localStorage.getItem(LIKED) === '1'; } catch (e) {}
-      render();
+      <label>
+        Your experience
+        <textarea name="experience" rows="5" maxlength="2000" required
+                  placeholder="What happened? How did it feel?"></textarea>
+      </label>
 
-      btn.addEventListener('click', function () {
-        liked = !liked;
-        try { localStorage.setItem(LIKED, liked ? '1' : '0'); } catch (e) {}
-        render();
-      });
+      <label class="rating-row">
+        Rating
+        <span class="stars-input" id="starsInput" role="group" aria-label="Rating, 1 to 5">
+          <button type="button" class="star" aria-label="1 star">&#9733;</button>
+          <button type="button" class="star" aria-label="2 stars">&#9733;</button>
+          <button type="button" class="star" aria-label="3 stars">&#9733;</button>
+          <button type="button" class="star" aria-label="4 stars">&#9733;</button>
+          <button type="button" class="star" aria-label="5 stars">&#9733;</button>
+        </span>
+        <input type="hidden" name="rating" id="ratingValue" value="0">
+      </label>
 
-      function render() {
-        btn.classList.toggle('liked', liked);
-        btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
-      }
-    })();
-  </script>
+      <label>
+        Name <span class="opt">(optional)</span>
+        <input type="text" name="name" maxlength="80" autocomplete="name">
+      </label>
+
+      <label>
+        Email <span class="opt">(optional, never shown publicly)</span>
+        <input type="email" name="email" maxlength="254" autocomplete="email">
+      </label>
+
+      <label class="check">
+        <input type="checkbox" name="anonymous">
+        Post anonymously
+      </label>
+
+      <!-- honeypot: hidden from humans, bots fill it -->
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" id="cancelForm">Cancel</button>
+        <button type="submit" class="btn" id="submitForm">Submit</button>
+      </div>
+      <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+    </form>
+  </dialog>
 </body>
 </html>
