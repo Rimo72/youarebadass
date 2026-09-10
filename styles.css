@@ -149,28 +149,22 @@ body::before {
 }
 
 /* ---------------- Experiences ---------------- */
+:root { --ticker-h: clamp(150px, 24vw, 200px); }
+
 .experiences {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1080px;
+  max-width: 760px;
   margin: 0 auto;
   padding: clamp(28px, 6vw, 56px) 6vw clamp(20px, 4vw, 36px);
+  text-align: center;
 }
 
 .exp-head {
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px 20px;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: clamp(18px, 3vw, 28px);
-}
-
-.exp-head h2 {
-  font-size: clamp(1.15rem, 3vw, 1.5rem);
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  justify-content: center;
+  margin-top: clamp(18px, 3vw, 26px);
 }
 
 .btn {
@@ -193,86 +187,56 @@ body::before {
 }
 .btn.ghost:hover { border-color: var(--ink); }
 .btn:focus-visible,
-.car-nav:focus-visible,
 .heart-btn:focus-visible,
 .star:focus-visible {
   outline: 2px solid var(--yellow);
   outline-offset: 2px;
 }
 
-.carousel {
+/* vertical ticker: messages scroll bottom -> top */
+.ticker {
+  height: var(--ticker-h);
+  overflow: hidden;
   position: relative;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
 }
 
-.car-track {
+.ticker-track {
   list-style: none;
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  padding: 4px 2px 14px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  margin: 0;
+  padding: 0;
+  will-change: transform;
+  transition: transform 2s cubic-bezier(0.45, 0, 0.15, 1);
 }
 
-.car-card {
-  scroll-snap-align: start;
-  flex: 0 0 min(320px, 78vw);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px 18px 16px;
+.ticker-item {
+  height: var(--ticker-h);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 168px;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 6px;
 }
 
-.car-card .stars {
-  color: var(--yellow);
-  letter-spacing: 2px;
-  font-size: 0.95rem;
-}
-.car-card .stars .off { color: rgba(255, 255, 255, 0.22); }
-
-.car-card blockquote {
-  font-size: 0.98rem;
-  line-height: 1.55;
-  flex: 1;
-  /* clamp long text */
+.ticker-item blockquote {
+  font-size: clamp(1.05rem, 2.7vw, 1.4rem);
+  line-height: 1.5;
+  font-weight: 600;
+  max-width: 32ch;
   display: -webkit-box;
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.car-card .who {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 600;
+.ticker-item .who {
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
 }
-
-.car-nav {
-  position: absolute;
-  top: calc(50% - 22px);
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(10, 10, 10, 0.85);
-  color: var(--ink);
-  font-size: 1.3rem;
-  line-height: 1;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  transition: background 0.15s ease;
-}
-.car-nav:hover { background: rgba(30, 30, 30, 0.95); }
-.car-nav.prev { left: -6px; }
-.car-nav.next { right: -6px; }
-.car-nav[disabled] { opacity: 0.3; cursor: default; }
 
 .exp-state {
   color: var(--muted);
@@ -416,10 +380,9 @@ footer {
   .stage { padding: 6vh 8vw 3vh; }
   .card { transform: rotateY(-20deg) rotateX(3deg) rotate(-1deg); }
   .reflection img { transform: rotateY(-20deg) rotateX(3deg) rotate(-1deg) scaleY(-1); }
-  .car-nav { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .car-track { scroll-behavior: auto; }
+  .ticker-track { transition: none !important; }
   * { transition: none !important; }
 }

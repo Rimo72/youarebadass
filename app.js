@@ -44,63 +44,40 @@
     }
   })();
 
-  /* ========================= Carousel ========================= */
+  /* ===================== Experiences ticker ===================== *
+   * One experience at a time; the list scrolls bottom -> top.
+   * Each message rests for 5s, then a 2s slide brings up the next.
+   */
   var track = document.getElementById("track");
+  var ticker = document.getElementById("ticker");
   var state = document.getElementById("expState");
-  var prevBtn = document.getElementById("carPrev");
-  var nextBtn = document.getElementById("carNext");
 
-  function starRow(rating) {
-    var wrap = document.createElement("div");
-    wrap.className = "stars";
-    var n = Math.max(0, Math.min(5, parseInt(rating, 10) || 0));
-    if (!n) { wrap.hidden = true; return wrap; }
-    for (var i = 1; i <= 5; i++) {
-      var s = document.createElement("span");
-      s.textContent = "★";
-      if (i > n) s.className = "off";
-      wrap.appendChild(s);
-    }
-    wrap.setAttribute("aria-label", n + " out of 5");
-    return wrap;
-  }
+  var HOLD_MS = 5000;
+  var SLIDE_MS = 2000;
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function card(row) {
+  function item(row) {
     var li = document.createElement("li");
-    li.className = "car-card";
-
-    li.appendChild(starRow(row.rating));
+    li.className = "ticker-item";
 
     var q = document.createElement("blockquote");
-    q.textContent = String(row.experience == null ? "" : row.experience);
+    q.textContent = "“" + String(row.experience == null ? "" : row.experience) + "”";
     li.appendChild(q);
 
     var who = document.createElement("div");
     who.className = "who";
     var name = row.display_name;
-    who.textContent = "— " + (name && String(name).trim() ? String(name).trim() : "Anonymous");
+    name = name && String(name).trim() ? String(name).trim() : "Anonymous";
+    who.textContent = "— " + name + " —";
     li.appendChild(who);
 
     return li;
   }
 
-  function setNavState() {
-    if (!track || !prevBtn || !nextBtn) return;
-    var max = track.scrollWidth - track.clientWidth - 4;
-    prevBtn.disabled = track.scrollLeft <= 4;
-    nextBtn.disabled = track.scrollLeft >= max;
-  }
-
-  function scrollByCard(dir) {
-    if (!track) return;
-    var first = track.querySelector(".car-card");
-    var step = first ? first.getBoundingClientRect().width + 16 : 320;
-    track.scrollBy({ left: dir * step, behavior: "smooth" });
-  }
-
-  if (prevBtn) prevBtn.addEventListener("click", function () { scrollByCard(-1); });
-  if (nextBtn) nextBtn.addEventListener("click", function () { scrollByCard(1); });
-  if (track) track.addEventListener("scroll", setNavState, { passive: true });
+  var tickTimer = null;
+  var idx = 0;
+  var tickCount = 0;
 
   function loadExperiences() {
     if (!track) return;
@@ -117,18 +94,22 @@
         track.textContent = "";
         if (!Array.isArray(rows) || rows.length === 0) {
           if (state) { state.hidden = false; state.textContent = "No experiences yet — be the first."; }
-          if (prevBtn) prevBtn.hidden = true;
-          if (nextBtn) nextBtn.hidden = true;
+          if (ticker) ticker.hidden = true;
           return;
         }
         if (state) state.hidden = true;
+        if (ticker) ticker.hidden = false;
+
         var frag = document.createDocumentFragment();
-        rows.forEach(function (row) { frag.appendChild(card(row)); });
+        rows.forEach(function (row) { frag.appendChild(item(row)); });
+        // clone the first so the loop back to the top is seamless
+        if (rows.length > 1) frag.appendChild(item(rows[0]));
         track.appendChild(frag);
-        setNavState();
-        startAuto();
+
+        if (rows.length > 1 && !reduceMotion) startTicker(rows.length);
       })
       .catch(function () {
+        if (ticker) ticker.hidden = true;
         if (state) {
           state.hidden = false;
           state.textContent = "Couldn't load experiences right now.";
@@ -136,24 +117,45 @@
       });
   }
 
-  /* gentle auto-advance, pauses on interaction */
-  var autoTimer = null;
-  function startAuto() {
-    if (autoTimer || !track) return;
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    autoTimer = setInterval(function () {
+  function moveTo(n, animate) {
+    track.style.transition = animate
+      ? ("transform " + (SLIDE_MS / 1000) + "s cubic-bezier(0.45,0,0.15,1)")
+      : "none";
+    track.style.transform = "translateY(calc(var(--ticker-h) * " + (-n) + "))";
+  }
+
+  function startTicker(count) {
+    tickCount = count;
+    if (tickTimer) return;
+    moveTo(idx, false);
+    tickTimer = setInterval(function () {
       if (document.hidden) return;
-      var max = track.scrollWidth - track.clientWidth - 4;
-      if (track.scrollLeft >= max) track.scrollTo({ left: 0, behavior: "smooth" });
-      else scrollByCard(1);
-    }, 5000);
+      idx++;
+      moveTo(idx, true);
+      if (idx === tickCount) {
+        // now showing the clone of item 0 — snap back once the slide ends
+        window.setTimeout(function () {
+          idx = 0;
+          moveTo(0, false);
+          void track.offsetHeight; // reflow so the next animated move runs
+        }, SLIDE_MS + 50);
+      }
+    }, HOLD_MS + SLIDE_MS);
   }
-  function stopAuto() {
-    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+
+  function stopTicker() {
+    if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
   }
-  if (track) {
-    ["pointerdown", "wheel", "touchstart", "focusin"].forEach(function (ev) {
-      track.addEventListener(ev, stopAuto, { passive: true });
+
+  // pause while a visitor hovers or focuses so they can finish reading, resume after
+  if (ticker) {
+    ticker.addEventListener("pointerenter", stopTicker);
+    ticker.addEventListener("focusin", stopTicker);
+    ticker.addEventListener("pointerleave", function () {
+      if (tickCount > 1 && !reduceMotion) startTicker(tickCount);
+    });
+    ticker.addEventListener("focusout", function () {
+      if (tickCount > 1 && !reduceMotion) startTicker(tickCount);
     });
   }
 

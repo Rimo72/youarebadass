@@ -11,7 +11,7 @@ Live: https://youarebadass.vercel.app · https://youarebadass.ca
 |------|---------|
 | `index.html` | Markup only — no inline script or style |
 | `styles.css` | All styling |
-| `app.js` | Heart toggle, experiences carousel, submission form, GA config |
+| `app.js` | Heart toggle, experiences ticker, submission form, GA config |
 | `card.png` | The card artwork |
 | `vercel.json` | Security headers / Content-Security-Policy |
 | `supabase-setup.sql` | One-time database hardening — **run this in Supabase** |
