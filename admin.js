@@ -14,6 +14,10 @@
   var loginForm = document.getElementById("loginForm");
   var loginEmail = document.getElementById("loginEmail");
   var loginBtn = document.getElementById("loginBtn");
+  var codeForm = document.getElementById("codeForm");
+  var loginCode = document.getElementById("loginCode");
+  var codeBtn = document.getElementById("codeBtn");
+  var codeBack = document.getElementById("codeBack");
   var loginMsg = document.getElementById("loginMsg");
   var whoami = document.getElementById("whoami");
   var signOutBtn = document.getElementById("signOut");
@@ -42,6 +46,8 @@
   function showLogin() {
     panelSec.hidden = true;
     loginSec.hidden = false;
+    codeForm.hidden = true;
+    loginForm.hidden = false;
   }
 
   function showPanel(email) {
@@ -52,6 +58,8 @@
   }
 
   /* ---------- auth ---------- */
+  var pendingEmail = "";
+
   loginForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var email = loginEmail.value.trim();
@@ -63,15 +71,49 @@
       options: { emailRedirectTo: window.location.origin + "/admin" }
     }).then(function (res) {
       if (res.error) {
-        setMsg(loginMsg, res.error.message || "Couldn't send the link.", "err");
+        setMsg(loginMsg, res.error.message || "Couldn't send the code.", "err");
       } else {
-        setMsg(loginMsg, "Check your inbox for the sign-in link.", "ok");
+        pendingEmail = email;
+        loginForm.hidden = true;
+        codeForm.hidden = false;
+        loginCode.value = "";
+        loginCode.focus();
+        setMsg(loginMsg, "Enter the 6-digit code from the email (or click the link in it).", "ok");
       }
     }).catch(function () {
       setMsg(loginMsg, "Something went wrong. Try again.", "err");
     }).finally(function () {
       loginBtn.disabled = false;
     });
+  });
+
+  codeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var token = loginCode.value.replace(/\D/g, "");
+    if (token.length < 6 || !pendingEmail) return;
+    codeBtn.disabled = true;
+    setMsg(loginMsg, "Verifying…");
+    sb.auth.verifyOtp({ email: pendingEmail, token: token, type: "email" })
+      .then(function (res) {
+        if (res.error) {
+          setMsg(loginMsg, res.error.message || "That code didn't work.", "err");
+        }
+        // success -> onAuthStateChange swaps to the panel
+      })
+      .catch(function () {
+        setMsg(loginMsg, "Something went wrong. Try again.", "err");
+      })
+      .finally(function () {
+        codeBtn.disabled = false;
+      });
+  });
+
+  codeBack.addEventListener("click", function () {
+    pendingEmail = "";
+    codeForm.hidden = true;
+    loginForm.hidden = false;
+    setMsg(loginMsg, "");
+    loginEmail.focus();
   });
 
   signOutBtn.addEventListener("click", function () {

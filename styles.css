@@ -8,6 +8,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 html { height: 100%; }
 
 body {
@@ -403,13 +404,15 @@ body.admin::before { display: none; }
 }
 .admin-lead { color: var(--muted); margin-bottom: 14px; }
 
-#loginForm {
+#loginForm,
+#codeForm {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
-#loginForm input {
-  flex: 1 1 220px;
+#loginForm input,
+#codeForm input {
+  flex: 1 1 200px;
   font: inherit;
   color: var(--ink);
   background: #0c0c0d;
@@ -417,7 +420,9 @@ body.admin::before { display: none; }
   border-radius: 10px;
   padding: 10px 12px;
 }
-#loginForm input:focus { outline: none; border-color: var(--yellow); }
+#loginForm input:focus,
+#codeForm input:focus { outline: none; border-color: var(--yellow); }
+#codeForm input { letter-spacing: 0.4em; font-size: 1.1rem; text-align: center; }
 
 .admin-bar {
   display: flex;
