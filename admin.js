@@ -46,7 +46,10 @@
     el.className = "form-msg" + (kind ? " " + kind : "");
   }
 
+  var panelShown = false;
+
   function showLogin() {
+    panelShown = false;
     panelSec.hidden = true;
     loginSec.hidden = false;
     loginForm.hidden = false;
@@ -58,6 +61,8 @@
     loginSec.hidden = true;
     panelSec.hidden = false;
     whoami.textContent = email || "";
+    if (panelShown) return;      // auth events can fire several times
+    panelShown = true;
     loadList();
   }
 
@@ -209,15 +214,19 @@
     return b;
   }
 
+  var loadSeq = 0;
+
   function loadList() {
+    var seq = ++loadSeq;
     listState.hidden = false;
     listState.textContent = "Loading…";
     table.hidden = true;
-    list.textContent = "";
     sb.from("experiences")
       .select("id,created_at,name,email,experience,rating,anonymous,status,published_at")
       .order("created_at", { ascending: false })
       .then(function (res) {
+        if (seq !== loadSeq) return;   // a newer load started; drop this result
+        list.textContent = "";
         if (res.error) {
           listState.textContent = "Couldn't load (" + res.error.message + ").";
           return;
