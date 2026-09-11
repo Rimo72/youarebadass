@@ -21,7 +21,7 @@
     Authorization: "Bearer " + SUPABASE_KEY
   };
 
-  var MAX_LEN = 2000;
+  var MAX_LEN = 250;
   var MIN_LEN = 10;
   var THROTTLE_MS = 60 * 1000;
 
@@ -168,6 +168,8 @@
   var msg = document.getElementById("formMsg");
   var starsInput = document.getElementById("starsInput");
   var ratingField = document.getElementById("ratingValue");
+  var experienceField = document.getElementById("experienceField");
+  var charCount = document.getElementById("charCount");
   var currentRating = 0;
 
   function setMsg(text, kind) {
@@ -176,9 +178,23 @@
     msg.className = "form-msg" + (kind ? " " + kind : "");
   }
 
+  /* live character counter */
+  function updateCharCount() {
+    if (!experienceField || !charCount) return;
+    var len = experienceField.value.length;
+    charCount.textContent = len + " / " + MAX_LEN;
+    charCount.classList.toggle("at-limit", len >= MAX_LEN);
+    charCount.classList.toggle("near-limit", len >= MAX_LEN * 0.9 && len < MAX_LEN);
+  }
+  if (experienceField) {
+    experienceField.addEventListener("input", updateCharCount);
+    updateCharCount();
+  }
+
   if (openBtn && dialog) {
     openBtn.addEventListener("click", function () {
       setMsg("");
+      updateCharCount();
       if (typeof dialog.showModal === "function") dialog.showModal();
       else dialog.setAttribute("open", "");
     });
@@ -270,6 +286,7 @@
             if (starsInput) {
               starsInput.querySelectorAll(".star").forEach(function (s) { s.classList.remove("on"); });
             }
+            updateCharCount();
             setMsg("Thank you! Your experience will show up once it's approved.", "ok");
             setTimeout(function () { if (dialog.open) dialog.close(); }, 1800);
           } else {

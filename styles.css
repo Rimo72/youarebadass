@@ -297,6 +297,14 @@ body::before {
   outline: none;
   border-color: var(--yellow);
 }
+.char-count {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.char-count.near-limit { color: var(--yellow); }
+.char-count.at-limit { color: #ff6b6b; }
 .modal .check {
   flex-direction: row;
   align-items: center;

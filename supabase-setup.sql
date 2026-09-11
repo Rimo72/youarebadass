@@ -47,7 +47,7 @@ end $$;
 
 alter table public.experiences
   add constraint experiences_experience_len
-    check (char_length(experience) between 10 and 2000),
+    check (char_length(experience) between 10 and 250),
   add constraint experiences_name_len
     check (name is null or char_length(name) <= 80),
   add constraint experiences_email_len
