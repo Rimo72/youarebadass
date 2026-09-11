@@ -525,3 +525,10 @@ body.admin::before { display: none; }
 }
 .admin-table .col-act button:hover:not(:disabled) { border-color: var(--ink); }
 .admin-table .col-act button:disabled { opacity: 0.35; cursor: default; }
+
+.admin-empty-row td {
+  text-align: center;
+  color: var(--muted);
+  white-space: normal;
+  padding: 18px 9px;
+}

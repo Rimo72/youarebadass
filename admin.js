@@ -236,13 +236,28 @@
   }
 
   var loadSeq = 0;
+  var COLS = 6;
+
+  function messageRow(text) {
+    var tr = document.createElement("tr");
+    tr.className = "admin-empty-row";
+    var c = document.createElement("td");
+    c.colSpan = COLS;
+    c.textContent = text;
+    tr.appendChild(c);
+    return tr;
+  }
 
   function loadList() {
     var seq = ++loadSeq;
     var status = filterStatus ? filterStatus.value : "";
-    listState.hidden = false;
-    listState.textContent = "Loading…";
-    table.hidden = true;
+
+    // keep the header (with the sort/filter controls) visible throughout,
+    // so a filter that matches nothing never traps you behind it
+    listState.hidden = true;
+    table.hidden = false;
+    list.textContent = "";
+    list.appendChild(messageRow("Loading…"));
 
     var query = sb.from("experiences")
       .select("id,created_at,name,email,experience,rating,anonymous,status,published_at");
@@ -253,18 +268,17 @@
       if (seq !== loadSeq) return;   // a newer load started; drop this result
       list.textContent = "";
       if (res.error) {
-        listState.textContent = "Couldn't load (" + res.error.message + ").";
+        list.appendChild(messageRow("Couldn't load (" + res.error.message + ")."));
         return;
       }
       var rows = res.data || [];
       if (!rows.length) {
-        listState.textContent = status
-          ? "No " + status + " experiences."
-          : "No experiences yet.";
+        list.appendChild(messageRow(
+          status ? "No " + status + " experiences. Change the filter above to see more."
+                 : "No experiences yet."
+        ));
         return;
       }
-      listState.hidden = true;
-      table.hidden = false;
       var frag = document.createDocumentFragment();
       rows.forEach(function (r) { frag.appendChild(row(r)); });
       list.appendChild(frag);
