@@ -478,6 +478,32 @@ body.admin::before { display: none; }
   color: var(--muted);
   white-space: nowrap;
 }
+.th-sort {
+  font: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.th-sort:hover { color: var(--ink); }
+.th-sort #sortArrow { font-size: 0.6rem; }
+.th-filter {
+  display: block;
+  margin-top: 4px;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--ink);
+  background: #0c0c0d;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px 4px;
+}
 .admin-table td { white-space: nowrap; }
 .admin-table .col-exp {
   white-space: pre-wrap;

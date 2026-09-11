@@ -30,6 +30,9 @@
   var listState = document.getElementById("listState");
   var table = document.getElementById("table");
   var list = document.getElementById("list");
+  var sortDateBtn = document.getElementById("sortDate");
+  var sortArrow = document.getElementById("sortArrow");
+  var filterStatus = document.getElementById("filterStatus");
 
   if (!window.supabase || !window.supabase.createClient) {
     listState.hidden = false;
@@ -214,34 +217,58 @@
     return b;
   }
 
+  /* ---------- sort (by date) & filter (by status) ---------- */
+  var sortAsc = false; // newest first by default
+
+  function updateSortArrow() {
+    sortArrow.innerHTML = sortAsc ? "&#9650;" : "&#9660;";
+  }
+
+  if (sortDateBtn) {
+    sortDateBtn.addEventListener("click", function () {
+      sortAsc = !sortAsc;
+      updateSortArrow();
+      loadList();
+    });
+  }
+  if (filterStatus) {
+    filterStatus.addEventListener("change", loadList);
+  }
+
   var loadSeq = 0;
 
   function loadList() {
     var seq = ++loadSeq;
+    var status = filterStatus ? filterStatus.value : "";
     listState.hidden = false;
     listState.textContent = "Loading…";
     table.hidden = true;
-    sb.from("experiences")
-      .select("id,created_at,name,email,experience,rating,anonymous,status,published_at")
-      .order("created_at", { ascending: false })
-      .then(function (res) {
-        if (seq !== loadSeq) return;   // a newer load started; drop this result
-        list.textContent = "";
-        if (res.error) {
-          listState.textContent = "Couldn't load (" + res.error.message + ").";
-          return;
-        }
-        var rows = res.data || [];
-        if (!rows.length) {
-          listState.textContent = "No experiences yet.";
-          return;
-        }
-        listState.hidden = true;
-        table.hidden = false;
-        var frag = document.createDocumentFragment();
-        rows.forEach(function (r) { frag.appendChild(row(r)); });
-        list.appendChild(frag);
-      });
+
+    var query = sb.from("experiences")
+      .select("id,created_at,name,email,experience,rating,anonymous,status,published_at");
+    if (status) query = query.eq("status", status);
+    query = query.order("created_at", { ascending: sortAsc });
+
+    query.then(function (res) {
+      if (seq !== loadSeq) return;   // a newer load started; drop this result
+      list.textContent = "";
+      if (res.error) {
+        listState.textContent = "Couldn't load (" + res.error.message + ").";
+        return;
+      }
+      var rows = res.data || [];
+      if (!rows.length) {
+        listState.textContent = status
+          ? "No " + status + " experiences."
+          : "No experiences yet.";
+        return;
+      }
+      listState.hidden = true;
+      table.hidden = false;
+      var frag = document.createDocumentFragment();
+      rows.forEach(function (r) { frag.appendChild(row(r)); });
+      list.appendChild(frag);
+    });
   }
 
   function moderate(id, patch) {
