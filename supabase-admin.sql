@@ -27,6 +27,7 @@ $$;
 -- ------------------------------------------------------------
 grant select on public.experiences to authenticated;
 grant update (status, published_at) on public.experiences to authenticated;
+grant delete on public.experiences to authenticated;
 
 drop policy if exists "admin can read every experience" on public.experiences;
 create policy "admin can read every experience"
@@ -40,6 +41,12 @@ create policy "admin can moderate experiences"
   to authenticated
   using ( public.is_experience_admin() )
   with check ( public.is_experience_admin() );
+
+drop policy if exists "admin can delete experiences" on public.experiences;
+create policy "admin can delete experiences"
+  on public.experiences for delete
+  to authenticated
+  using ( public.is_experience_admin() );
 
 -- ------------------------------------------------------------
 -- 3. Email on every new submission (via Resend, using pg_net).

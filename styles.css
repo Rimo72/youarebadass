@@ -448,19 +448,6 @@ body.admin::before { display: none; }
 }
 .admin-who { color: var(--muted); font-size: 0.9rem; }
 
-.admin-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
-.admin-tab {
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--muted);
-  background: none;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 6px 14px;
-}
-.admin-tab.is-active { color: #1a1a1a; background: var(--yellow); border-color: var(--yellow); }
-
 .admin-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
 .admin-item {
   background: var(--panel);
@@ -471,10 +458,32 @@ body.admin::before { display: none; }
   flex-direction: column;
   gap: 10px;
 }
+.admin-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .admin-meta { color: var(--muted); font-size: 0.8rem; }
+.admin-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.admin-status.status-pending   { color: #f5c518; border-color: rgba(245,197,24,0.4); }
+.admin-status.status-published { color: #7dd66e; border-color: rgba(125,214,110,0.4); }
+.admin-status.status-rejected  { color: #ff6b6b; border-color: rgba(255,107,107,0.4); }
+
 .admin-item blockquote { font-size: 1rem; line-height: 1.55; white-space: pre-wrap; }
 .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .btn.small { padding: 7px 14px; font-size: 0.85rem; }
-.btn.warn { background: #ff6b6b; border-color: #ff6b6b; color: #1a1a1a; }
-.btn.ok { background: #7dd66e; border-color: #7dd66e; color: #14351d; }
+.btn.warn   { background: #ff9f43; border-color: #ff9f43; color: #2b1a05; }
+.btn.ok     { background: #7dd66e; border-color: #7dd66e; color: #14351d; }
+.btn.danger { background: transparent; border-color: rgba(255,107,107,0.5); color: #ff6b6b; }
+.btn.danger:hover { border-color: #ff6b6b; }
+.btn.small.is-current { opacity: 0.4; }

@@ -68,10 +68,13 @@ couple per hour unless you set custom SMTP (below).
 3. Run [`supabase-admin.sql`](supabase-admin.sql) in the SQL editor. It:
    - adds `is_experience_admin()` — checks the signed-in email against the
      hard-coded admin address (change it there if it moves);
-   - lets that one admin `SELECT` every row and `UPDATE (status, published_at)`;
-     non-admin signed-in users still see nothing and can write nothing;
+   - lets that one admin `SELECT` every row, `UPDATE (status, published_at)`,
+     and `DELETE`; non-admin signed-in users still see nothing and can write
+     nothing;
    - installs an `AFTER INSERT` trigger that calls Resend via `pg_net`. The
      insert never fails on a mail problem — it just logs a warning.
+
+   *(Re-run this file whenever it changes — every statement is idempotent.)*
 4. **Dashboard → Authentication → URL Configuration**: set the Site URL to
    `https://youarebadass.ca` and add redirect URLs
    `https://youarebadass.ca/admin` and `https://youarebadass.vercel.app/admin`.
@@ -81,6 +84,9 @@ couple per hour unless you set custom SMTP (below).
    Not needed if you only ever use password login.
 
 ### How access is locked down
+
+`/admin` lists every experience newest-first with its status; each row has
+Approve / Reject / Delete.
 
 The `/admin` HTML is public, but useless without a session. The RLS policies
 check the **exact email address** on the logged-in user, so anyone who manages

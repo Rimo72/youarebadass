@@ -27,8 +27,6 @@
   var loginMsg = document.getElementById("loginMsg");
   var whoami = document.getElementById("whoami");
   var signOutBtn = document.getElementById("signOut");
-  var tabPending = document.getElementById("tabPending");
-  var tabPublished = document.getElementById("tabPublished");
   var listState = document.getElementById("listState");
   var list = document.getElementById("list");
 
@@ -41,8 +39,6 @@
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
-
-  var currentTab = "pending";
 
   function setMsg(el, text, kind) {
     el.textContent = text || "";
@@ -156,16 +152,6 @@
   });
 
   /* ---------- list & moderation ---------- */
-  tabPending.addEventListener("click", function () { switchTab("pending"); });
-  tabPublished.addEventListener("click", function () { switchTab("published"); });
-
-  function switchTab(tab) {
-    currentTab = tab;
-    tabPending.classList.toggle("is-active", tab === "pending");
-    tabPublished.classList.toggle("is-active", tab === "published");
-    loadList();
-  }
-
   function fmtDate(s) {
     try { return new Date(s).toLocaleString(); } catch (e) { return s || ""; }
   }
@@ -174,16 +160,25 @@
     var li = document.createElement("li");
     li.className = "admin-item";
 
-    var meta = document.createElement("div");
+    var head = document.createElement("div");
+    head.className = "admin-head";
+
+    var badge = document.createElement("span");
+    badge.className = "admin-status status-" + r.status;
+    badge.textContent = r.status;
+    head.appendChild(badge);
+
+    var meta = document.createElement("span");
     meta.className = "admin-meta";
     var name = r.anonymous ? "Anonymous"
-      : (r.name && r.name.trim() ? r.name.trim() : "— no name —");
+      : (r.name && r.name.trim() ? r.name.trim() : "no name");
     var bits = [name];
     if (r.rating) bits.push("★ " + r.rating);
     if (r.email && !r.anonymous) bits.push(r.email);
     bits.push(fmtDate(r.created_at));
     meta.textContent = bits.join("  ·  ");
-    li.appendChild(meta);
+    head.appendChild(meta);
+    li.appendChild(head);
 
     var q = document.createElement("blockquote");
     q.textContent = r.experience || "";
@@ -191,30 +186,24 @@
 
     var actions = document.createElement("div");
     actions.className = "admin-actions";
-
-    if (r.status !== "published") {
-      actions.appendChild(btn("Approve", "ok", function () {
-        moderate(r.id, { status: "published", published_at: new Date().toISOString() });
-      }));
-    }
-    if (r.status !== "rejected") {
-      actions.appendChild(btn("Reject", "warn", function () {
-        moderate(r.id, { status: "rejected" });
-      }));
-    }
-    if (r.status === "published") {
-      actions.appendChild(btn("Unpublish", "", function () {
-        moderate(r.id, { status: "pending", published_at: null });
-      }));
-    }
+    actions.appendChild(btn("Approve", "ok", r.status === "published", function () {
+      moderate(r.id, { status: "published", published_at: new Date().toISOString() });
+    }));
+    actions.appendChild(btn("Reject", "warn", r.status === "rejected", function () {
+      moderate(r.id, { status: "rejected", published_at: null });
+    }));
+    actions.appendChild(btn("Delete", "danger", false, function () {
+      if (!window.confirm("Delete this experience permanently?")) return;
+      remove(r.id);
+    }));
     li.appendChild(actions);
     return li;
   }
 
-  function btn(label, kind, fn) {
+  function btn(label, kind, isCurrent, fn) {
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "btn small" + (kind ? " " + kind : " ghost");
+    b.className = "btn small " + kind + (isCurrent ? " is-current" : "");
     b.textContent = label;
     b.addEventListener("click", function () {
       b.disabled = true;
@@ -229,8 +218,7 @@
     list.textContent = "";
     sb.from("experiences")
       .select("id,created_at,name,email,experience,rating,anonymous,status,published_at")
-      .eq("status", currentTab)
-      .order("created_at", { ascending: currentTab === "pending" })
+      .order("created_at", { ascending: false })
       .then(function (res) {
         if (res.error) {
           listState.textContent = "Couldn't load (" + res.error.message + ").";
@@ -238,9 +226,7 @@
         }
         var rows = res.data || [];
         if (!rows.length) {
-          listState.textContent = currentTab === "pending"
-            ? "Nothing waiting. 🎉"
-            : "Nothing here yet.";
+          listState.textContent = "No experiences yet.";
           return;
         }
         listState.hidden = true;
@@ -252,12 +238,15 @@
 
   function moderate(id, patch) {
     sb.from("experiences").update(patch).eq("id", id).then(function (res) {
-      if (res.error) {
-        alert("Update failed: " + res.error.message);
-        loadList();
-      } else {
-        loadList();
-      }
+      if (res.error) alert("Update failed: " + res.error.message);
+      loadList();
+    });
+  }
+
+  function remove(id) {
+    sb.from("experiences").delete().eq("id", id).then(function (res) {
+      if (res.error) alert("Delete failed: " + res.error.message);
+      loadList();
     });
   }
 })();
