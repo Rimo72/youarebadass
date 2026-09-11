@@ -28,6 +28,7 @@
   var whoami = document.getElementById("whoami");
   var signOutBtn = document.getElementById("signOut");
   var listState = document.getElementById("listState");
+  var table = document.getElementById("table");
   var list = document.getElementById("list");
 
   if (!window.supabase || !window.supabase.createClient) {
@@ -153,57 +154,53 @@
 
   /* ---------- list & moderation ---------- */
   function fmtDate(s) {
-    try { return new Date(s).toLocaleString(); } catch (e) { return s || ""; }
+    try {
+      return new Date(s).toLocaleString([], {
+        year: "2-digit", month: "short", day: "numeric",
+        hour: "2-digit", minute: "2-digit"
+      });
+    } catch (e) { return s || ""; }
+  }
+
+  function td(text) {
+    var c = document.createElement("td");
+    c.textContent = text;
+    return c;
   }
 
   function row(r) {
-    var li = document.createElement("li");
-    li.className = "admin-item";
+    var tr = document.createElement("tr");
 
-    var head = document.createElement("div");
-    head.className = "admin-head";
+    tr.appendChild(td(fmtDate(r.created_at)));
+    tr.appendChild(td(r.anonymous ? "Anonymous"
+      : (r.name && r.name.trim() ? r.name.trim() : "—")));
+    tr.appendChild(td(r.rating ? String(r.rating) : "—"));
+    tr.appendChild(td(r.status));
 
-    var badge = document.createElement("span");
-    badge.className = "admin-status status-" + r.status;
-    badge.textContent = r.status;
-    head.appendChild(badge);
+    var exp = td(r.experience || "");
+    exp.className = "col-exp";
+    tr.appendChild(exp);
 
-    var meta = document.createElement("span");
-    meta.className = "admin-meta";
-    var name = r.anonymous ? "Anonymous"
-      : (r.name && r.name.trim() ? r.name.trim() : "no name");
-    var bits = [name];
-    if (r.rating) bits.push("★ " + r.rating);
-    if (r.email && !r.anonymous) bits.push(r.email);
-    bits.push(fmtDate(r.created_at));
-    meta.textContent = bits.join("  ·  ");
-    head.appendChild(meta);
-    li.appendChild(head);
-
-    var q = document.createElement("blockquote");
-    q.textContent = r.experience || "";
-    li.appendChild(q);
-
-    var actions = document.createElement("div");
-    actions.className = "admin-actions";
-    actions.appendChild(btn("Approve", "ok", r.status === "published", function () {
+    var act = document.createElement("td");
+    act.className = "col-act";
+    act.appendChild(btn("Approve", r.status === "published", function () {
       moderate(r.id, { status: "published", published_at: new Date().toISOString() });
     }));
-    actions.appendChild(btn("Reject", "warn", r.status === "rejected", function () {
+    act.appendChild(btn("Reject", r.status === "rejected", function () {
       moderate(r.id, { status: "rejected", published_at: null });
     }));
-    actions.appendChild(btn("Delete", "danger", false, function () {
+    act.appendChild(btn("Delete", false, function () {
       if (!window.confirm("Delete this experience permanently?")) return;
       remove(r.id);
     }));
-    li.appendChild(actions);
-    return li;
+    tr.appendChild(act);
+    return tr;
   }
 
-  function btn(label, kind, isCurrent, fn) {
+  function btn(label, isCurrent, fn) {
     var b = document.createElement("button");
     b.type = "button";
-    b.className = "btn small " + kind + (isCurrent ? " is-current" : "");
+    if (isCurrent) b.disabled = true;
     b.textContent = label;
     b.addEventListener("click", function () {
       b.disabled = true;
@@ -215,6 +212,7 @@
   function loadList() {
     listState.hidden = false;
     listState.textContent = "Loading…";
+    table.hidden = true;
     list.textContent = "";
     sb.from("experiences")
       .select("id,created_at,name,email,experience,rating,anonymous,status,published_at")
@@ -230,6 +228,7 @@
           return;
         }
         listState.hidden = true;
+        table.hidden = false;
         var frag = document.createDocumentFragment();
         rows.forEach(function (r) { frag.appendChild(row(r)); });
         list.appendChild(frag);

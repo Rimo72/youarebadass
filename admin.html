@@ -47,7 +47,21 @@
       </div>
 
       <p class="exp-state" id="listState">Loading&hellip;</p>
-      <ul class="admin-list" id="list"></ul>
+      <div class="table-scroll">
+        <table class="admin-table" hidden id="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>From</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th>Experience</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="list"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 </body>
