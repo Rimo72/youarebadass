@@ -9,6 +9,13 @@
 
   var SUPABASE_URL = "https://araavruihkejddppjbft.supabase.co";
   var SUPABASE_KEY = "sb_publishable_JLzNXICOAvDZprQIuX4C9A_2bkxDz2-";
+  var PRODUCTION_ORIGIN = "https://youarebadass.ca";
+
+  // If this ever loads from a stray local/dev server, still email a link
+  // back to the real site — not to a localhost address nobody can open.
+  var isLocalHost = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname)
+    || window.location.protocol === "file:";
+  var REDIRECT_ORIGIN = isLocalHost ? PRODUCTION_ORIGIN : window.location.origin;
 
   var loginSec = document.getElementById("login");
   var panelSec = document.getElementById("panel");
@@ -105,7 +112,7 @@
     setMsg(loginMsg, "Sending…");
     sb.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: window.location.origin + "/admin" }
+      options: { emailRedirectTo: REDIRECT_ORIGIN + "/admin" }
     }).then(function (res) {
       if (res.error) {
         setMsg(loginMsg, res.error.message || "Couldn't send the code.", "err");
