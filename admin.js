@@ -40,6 +40,12 @@
   var sortDateBtn = document.getElementById("sortDate");
   var sortArrow = document.getElementById("sortArrow");
   var filterStatus = document.getElementById("filterStatus");
+  var selectAll = document.getElementById("selectAll");
+  var bulkBar = document.getElementById("bulkBar");
+  var bulkCount = document.getElementById("bulkCount");
+  var bulkApprove = document.getElementById("bulkApprove");
+  var bulkReject = document.getElementById("bulkReject");
+  var bulkDelete = document.getElementById("bulkDelete");
 
   if (!window.supabase || !window.supabase.createClient) {
     listState.hidden = false;
@@ -186,6 +192,22 @@
   function row(r) {
     var tr = document.createElement("tr");
 
+    var checkCell = document.createElement("td");
+    checkCell.className = "col-check";
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "row-check";
+    checkbox.dataset.id = String(r.id);
+    checkbox.checked = !!selected[r.id];
+    checkbox.addEventListener("change", function () {
+      if (checkbox.checked) selected[r.id] = true;
+      else delete selected[r.id];
+      syncSelectAll();
+      updateBulkBar();
+    });
+    checkCell.appendChild(checkbox);
+    tr.appendChild(checkCell);
+
     tr.appendChild(td(fmtDate(r.created_at)));
     tr.appendChild(td(r.anonymous ? "Anonymous"
       : (r.name && r.name.trim() ? r.name.trim() : "—")));
@@ -215,6 +237,7 @@
   function btn(label, isCurrent, fn) {
     var b = document.createElement("button");
     b.type = "button";
+    b.className = "abtn";
     if (isCurrent) b.disabled = true;
     b.textContent = label;
     b.addEventListener("click", function () {
@@ -222,6 +245,86 @@
       fn();
     });
     return b;
+  }
+
+  /* ---------- multi-select & bulk actions ---------- */
+  var selected = {}; // id -> true
+
+  function selectedIds() {
+    return Object.keys(selected).map(Number);
+  }
+
+  function updateBulkBar() {
+    var n = selectedIds().length;
+    bulkBar.hidden = n === 0;
+    bulkCount.textContent = n + (n === 1 ? " selected" : " selected");
+  }
+
+  function syncSelectAll() {
+    if (!selectAll) return;
+    var boxes = list.querySelectorAll(".row-check");
+    var total = boxes.length;
+    var checked = 0;
+    boxes.forEach(function (b) { if (b.checked) checked++; });
+    selectAll.checked = total > 0 && checked === total;
+    selectAll.indeterminate = checked > 0 && checked < total;
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener("change", function () {
+      var boxes = list.querySelectorAll(".row-check");
+      boxes.forEach(function (b) {
+        b.checked = selectAll.checked;
+        var id = Number(b.dataset.id);
+        if (selectAll.checked) selected[id] = true;
+        else delete selected[id];
+      });
+      updateBulkBar();
+    });
+  }
+
+  function runBulk(button, apply) {
+    var ids = selectedIds();
+    if (!ids.length) return;
+    button.disabled = true;
+    apply(ids).then(function (res) {
+      button.disabled = false;
+      if (res.error) {
+        alert("That didn't work: " + res.error.message);
+        return;
+      }
+      loadList();
+    });
+  }
+
+  if (bulkApprove) {
+    bulkApprove.addEventListener("click", function () {
+      runBulk(bulkApprove, function (ids) {
+        return sb.from("experiences")
+          .update({ status: "published", published_at: new Date().toISOString() })
+          .in("id", ids);
+      });
+    });
+  }
+  if (bulkReject) {
+    bulkReject.addEventListener("click", function () {
+      runBulk(bulkReject, function (ids) {
+        return sb.from("experiences")
+          .update({ status: "rejected", published_at: null })
+          .in("id", ids);
+      });
+    });
+  }
+  if (bulkDelete) {
+    bulkDelete.addEventListener("click", function () {
+      var ids = selectedIds();
+      if (!ids.length) return;
+      var n = ids.length;
+      if (!window.confirm("Delete " + n + " experience" + (n === 1 ? "" : "s") + " permanently?")) return;
+      runBulk(bulkDelete, function (idsToDelete) {
+        return sb.from("experiences").delete().in("id", idsToDelete);
+      });
+    });
   }
 
   /* ---------- sort (by date) & filter (by status) ---------- */
@@ -243,7 +346,7 @@
   }
 
   var loadSeq = 0;
-  var COLS = 6;
+  var COLS = 7;
 
   function messageRow(text) {
     var tr = document.createElement("tr");
@@ -265,6 +368,11 @@
     table.hidden = false;
     list.textContent = "";
     list.appendChild(messageRow("Loading…"));
+
+    // a fresh load invalidates whatever was ticked before
+    selected = {};
+    if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+    updateBulkBar();
 
     var query = sb.from("experiences")
       .select("id,created_at,name,email,experience,rating,anonymous,status,published_at");

@@ -46,11 +46,19 @@
         <button type="button" class="btn ghost" id="signOut">Sign out</button>
       </div>
 
+      <div class="bulk-bar" id="bulkBar" hidden>
+        <span id="bulkCount">0 selected</span>
+        <button type="button" class="abtn" id="bulkApprove">Approve</button>
+        <button type="button" class="abtn" id="bulkReject">Reject</button>
+        <button type="button" class="abtn" id="bulkDelete">Delete</button>
+      </div>
+
       <p class="exp-state" id="listState">Loading&hellip;</p>
       <div class="table-scroll">
         <table class="admin-table" hidden id="table">
           <thead>
             <tr>
+              <th><input type="checkbox" id="selectAll" aria-label="Select all rows"></th>
               <th>
                 <button type="button" class="th-sort" id="sortDate">
                   Date <span id="sortArrow" aria-hidden="true">&#9660;</span>

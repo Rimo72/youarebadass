@@ -512,7 +512,9 @@ body.admin::before { display: none; }
   line-height: 1.45;
 }
 .admin-table .col-act { white-space: nowrap; }
-.admin-table .col-act button {
+.admin-table .col-check { width: 1px; }
+
+.abtn {
   font: inherit;
   font-size: 0.78rem;
   cursor: pointer;
@@ -523,12 +525,21 @@ body.admin::before { display: none; }
   padding: 3px 8px;
   margin: 0 4px 0 0;
 }
-.admin-table .col-act button:hover:not(:disabled) { border-color: var(--ink); }
-.admin-table .col-act button:disabled { opacity: 0.35; cursor: default; }
+.abtn:hover:not(:disabled) { border-color: var(--ink); }
+.abtn:disabled { opacity: 0.35; cursor: default; }
 
 .admin-empty-row td {
   text-align: center;
   color: var(--muted);
   white-space: normal;
   padding: 18px 9px;
+}
+
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
