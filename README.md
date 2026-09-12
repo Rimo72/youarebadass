@@ -13,7 +13,8 @@ Admin (private): https://lantern.youarebadass.ca
 | `index.html` | Markup only — no inline script or style |
 | `styles.css` | All styling |
 | `app.js` | Heart toggle, experiences ticker, submission form, GA config |
-| `admin.html` / `admin.js` | Moderation queue, served at `lantern.youarebadass.ca/` — see below |
+| `lantern.html` / `admin.js` | Moderation queue, served at `lantern.youarebadass.ca/` — see below |
+| `middleware.js` | Edge Middleware — routes that subdomain's `/` to `lantern.html` |
 | `vendor/supabase.min.js` | Vendored Supabase JS client (used only by the admin page) |
 | `card.png` | The card artwork |
 | `vercel.json` | Security headers / Content-Security-Policy / clean URLs |
@@ -46,10 +47,10 @@ That script:
 ## Admin page + email notifications
 
 The moderation page lives at **`https://lantern.youarebadass.ca/`** — a private
-subdomain with no `/admin` anywhere in the URL. `/admin` and `/admin.html` on
-every other domain (`youarebadass.ca`, `youarebadass.vercel.app`) just redirect
-to the homepage; `admin.html` is only reachable through the subdomain rewrite
-in `vercel.json`.
+subdomain with no "admin" anywhere in the URL. The file itself is named
+`lantern.html` for the same reason. `/admin` on every other domain
+(`youarebadass.ca`, `youarebadass.vercel.app`) redirects to the homepage;
+`middleware.js` is what serves `lantern.html` at the subdomain's root.
 
 This is about reducing exposure to bots and casual snooping, not the actual
 access control — that's still entirely Supabase Auth + RLS (see below). Moving
@@ -108,7 +109,7 @@ couple per hour unless you set custom SMTP (below).
 The page lists every experience newest-first with its status; each row has
 Approve / Reject / Delete, plus multi-select for bulk actions.
 
-`admin.html` is still a public file if someone finds its URL — but useless
+`lantern.html` is still a public file if someone finds its URL — but useless
 without a session. The RLS policies check the **exact email address** on the
 logged-in user, so anyone who manages to sign in with a different account sees
 an empty list and every write is refused.
@@ -138,7 +139,7 @@ update public.experiences set status = 'rejected' where id = <id>; -- reject
   `X-Frame-Options: DENY`, `frame-ancestors 'none'`, locked `Permissions-Policy`,
   HSTS.
 - **Admin:** gated by Supabase Auth; RLS checks the exact admin email, so
-  finding `admin.html`'s URL grants nothing without a valid session for that
+  finding `lantern.html`'s URL grants nothing without a valid session for that
   address. It's also parked off a low-traffic subdomain (`lantern.…`) instead
   of a guessable `/admin` path, mainly to cut down on bot/scanner noise.
 - **Resend key:** lives in Supabase Vault, read only by a `security definer`
