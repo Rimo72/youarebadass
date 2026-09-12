@@ -64,7 +64,7 @@ as $$
 declare
   v_key   text;
   v_admin text := 'rimo72.rm@gmail.com';
-  v_site  text := 'https://youarebadass.ca';
+  v_site  text := 'https://lantern.youarebadass.ca';
   v_who   text;
   v_exp   text;
   v_html  text;
@@ -97,8 +97,8 @@ begin
     || '<blockquote style="margin:12px 0;padding:10px 14px;border-left:3px solid #f5c518;background:#faf7ec;white-space:pre-wrap">'
     || v_exp
     || '</blockquote>'
-    || '<p style="margin:18px 0 0"><a href="' || v_site || '/admin" '
-    || 'style="display:inline-block;background:#f5c518;color:#1a1a1a;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Review in admin</a></p>'
+    || '<p style="margin:18px 0 0"><a href="' || v_site || '/" '
+    || 'style="display:inline-block;background:#f5c518;color:#1a1a1a;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Review</a></p>'
     || '<p style="color:#999;font-size:12px;margin-top:16px">id ' || new.id::text || ' &middot; ' || new.created_at::text || '</p>'
     || '</div>';
 

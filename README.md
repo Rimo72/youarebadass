@@ -4,6 +4,7 @@ A one-page site for the *You Are Badass* card, plus a moderated wall of
 user-submitted experiences backed by Supabase.
 
 Live: https://youarebadass.vercel.app · https://youarebadass.ca
+Admin (private): https://lantern.youarebadass.ca
 
 ## Files
 
@@ -12,7 +13,7 @@ Live: https://youarebadass.vercel.app · https://youarebadass.ca
 | `index.html` | Markup only — no inline script or style |
 | `styles.css` | All styling |
 | `app.js` | Heart toggle, experiences ticker, submission form, GA config |
-| `admin.html` / `admin.js` | `/admin` — magic-link login + moderation queue |
+| `admin.html` / `admin.js` | Moderation queue, served at `lantern.youarebadass.ca/` — see below |
 | `vendor/supabase.min.js` | Vendored Supabase JS client (used only by the admin page) |
 | `card.png` | The card artwork |
 | `vercel.json` | Security headers / Content-Security-Policy / clean URLs |
@@ -44,7 +45,27 @@ That script:
 
 ## Admin page + email notifications
 
-`/admin` is a private moderation page. New submissions email you a link to it.
+The moderation page lives at **`https://lantern.youarebadass.ca/`** — a private
+subdomain with no `/admin` anywhere in the URL. `/admin` and `/admin.html` on
+every other domain (`youarebadass.ca`, `youarebadass.vercel.app`) just redirect
+to the homepage; `admin.html` is only reachable through the subdomain rewrite
+in `vercel.json`.
+
+This is about reducing exposure to bots and casual snooping, not the actual
+access control — that's still entirely Supabase Auth + RLS (see below). Moving
+the URL doesn't weaken or strengthen that.
+
+### One-time DNS + Vercel setup for the subdomain
+
+1. **GoDaddy → DNS** for `youarebadass.ca`: add a **CNAME** record —
+   host `lantern`, value `cname.vercel-dns.com.` (Vercel shows the exact target
+   when you add the domain in the next step; use that if it differs).
+2. **Vercel → this project → Settings → Domains → Add** → `lantern.youarebadass.ca`.
+3. **Supabase → Authentication → URL Configuration → Redirect URLs** → add
+   `https://lantern.youarebadass.ca/`. Remove the old `.../admin` entries once
+   this is working, since they no longer resolve to anything.
+
+DNS can take a few minutes to propagate. Until then the subdomain won't load.
 
 ### Admin sign-in
 
@@ -75,9 +96,8 @@ couple per hour unless you set custom SMTP (below).
      insert never fails on a mail problem — it just logs a warning.
 
    *(Re-run this file whenever it changes — every statement is idempotent.)*
-4. **Dashboard → Authentication → URL Configuration**: set the Site URL to
-   `https://youarebadass.ca` and add redirect URLs
-   `https://youarebadass.ca/admin` and `https://youarebadass.vercel.app/admin`.
+4. **Dashboard → Authentication → URL Configuration** → add redirect URL
+   `https://lantern.youarebadass.ca/` (see the subdomain setup above).
 5. *(optional)* **Authentication → Emails → SMTP Settings** → point at Resend
    (`smtp.resend.com`, port 465, user `resend`, password = the API key,
    sender `onboarding@resend.dev`) so the fallback code emails aren't throttled.
@@ -85,13 +105,13 @@ couple per hour unless you set custom SMTP (below).
 
 ### How access is locked down
 
-`/admin` lists every experience newest-first with its status; each row has
-Approve / Reject / Delete.
+The page lists every experience newest-first with its status; each row has
+Approve / Reject / Delete, plus multi-select for bulk actions.
 
-The `/admin` HTML is public, but useless without a session. The RLS policies
-check the **exact email address** on the logged-in user, so anyone who manages
-to sign in with a different account sees an empty list and every write is
-refused.
+`admin.html` is still a public file if someone finds its URL — but useless
+without a session. The RLS policies check the **exact email address** on the
+logged-in user, so anyone who manages to sign in with a different account sees
+an empty list and every write is refused.
 
 ### Moderating by hand (fallback)
 
@@ -117,8 +137,10 @@ update public.experiences set status = 'rejected' where id = <id>; -- reject
   from a CDN, so the admin page keeps the same policy. Plus `nosniff`,
   `X-Frame-Options: DENY`, `frame-ancestors 'none'`, locked `Permissions-Policy`,
   HSTS.
-- **Admin:** gated by Supabase Auth; RLS checks the exact admin email, so the
-  public `/admin` page grants nothing without a valid session for that address.
+- **Admin:** gated by Supabase Auth; RLS checks the exact admin email, so
+  finding `admin.html`'s URL grants nothing without a valid session for that
+  address. It's also parked off a low-traffic subdomain (`lantern.…`) instead
+  of a guessable `/admin` path, mainly to cut down on bot/scanner noise.
 - **Resend key:** lives in Supabase Vault, read only by a `security definer`
   trigger. Never in the repo (`*.local.sql` is git-ignored).
 - **Abuse:** honeypot field, 60-second client-side submit throttle, DB-level

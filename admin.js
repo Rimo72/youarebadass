@@ -9,7 +9,7 @@
 
   var SUPABASE_URL = "https://araavruihkejddppjbft.supabase.co";
   var SUPABASE_KEY = "sb_publishable_JLzNXICOAvDZprQIuX4C9A_2bkxDz2-";
-  var PRODUCTION_ORIGIN = "https://youarebadass.ca";
+  var PRODUCTION_ORIGIN = "https://lantern.youarebadass.ca";
 
   // If this ever loads from a stray local/dev server, still email a link
   // back to the real site — not to a localhost address nobody can open.
@@ -118,7 +118,7 @@
     setMsg(loginMsg, "Sending…");
     sb.auth.signInWithOtp({
       email: email,
-      options: { emailRedirectTo: REDIRECT_ORIGIN + "/admin" }
+      options: { emailRedirectTo: REDIRECT_ORIGIN + "/" }
     }).then(function (res) {
       if (res.error) {
         setMsg(loginMsg, res.error.message || "Couldn't send the code.", "err");

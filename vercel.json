@@ -2,6 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/admin", "destination": "/", "permanent": false },
+    { "source": "/admin.html", "destination": "/", "permanent": false }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "lantern.youarebadass.ca" }],
+      "destination": "/admin.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
