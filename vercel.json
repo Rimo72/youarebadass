@@ -3,8 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/admin", "destination": "/", "permanent": false },
-    { "source": "/admin.html", "destination": "/", "permanent": false }
+    { "source": "/admin", "destination": "/", "permanent": false }
   ],
   "headers": [
     {
