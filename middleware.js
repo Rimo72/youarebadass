@@ -16,8 +16,22 @@ export const config = { matcher: "/" };
 
 export default async function middleware(request) {
   var host = request.headers.get("host") || "";
-  if (host === "lantern.youarebadass.ca") {
-    return fetch(new URL("/lantern.html", request.url));
-  }
-  // everything else: fall through to normal routing (serves index.html)
+  if (host !== "lantern.youarebadass.ca") return; // fall through: serves index.html
+
+  var res = await fetch(new URL("/lantern.html", request.url));
+
+  // fetch() hands back an already-decompressed body, but its headers still
+  // say Content-Encoding: br / a stale Content-Length for the compressed
+  // size. Passed straight through, the browser tries to Brotli-decode
+  // plain HTML and fails (ERR_CONTENT_DECODING_FAILED, blank page). Strip
+  // both so the platform recomputes them for the response we actually send.
+  var headers = new Headers(res.headers);
+  headers.delete("content-encoding");
+  headers.delete("content-length");
+
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: headers
+  });
 }
